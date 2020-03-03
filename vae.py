@@ -32,20 +32,25 @@ def train_model(
     for i in range(epochs):
         model.train()
         tqdm_loader = tqdm(train_loader, desc="Epoch " + str(i))
+        running_loss = 0
+        total_images = 0
         for (x, _) in tqdm_loader:
             x = x.to(device)
             optimizer.zero_grad()
             output, mean, logvar = model(x)
-            loss, kl, bce = vae_loss(x, output, mean, logvar)
+            loss, _, _ = vae_loss(x, output, mean, logvar)
             loss.backward()
             optimizer.step()
-            tqdm_loader.set_postfix(
-                {"training_loss": loss.item(), "kl": kl.item(), "bce": bce.item()}
-            )
+
+            batch_size = x.shape[0]
+            running_loss += loss.item() * batch_size
+            total_images += batch_size
+
+            tqdm_loader.set_postfix({"training_loss": running_loss / total_images})
 
         model.eval()
         val_loss = test_model(model, val_loader, device)
-        print("\tValidation loss: " + str(val_loss.item()))
+        print("\tValidation loss: " + str(val_loss))
 
         if i % save_freq == 0:
             save_checkpoint(model, i)
@@ -62,7 +67,7 @@ def test_model(model, test_loader, device):
         output, mean, logvar = model(x)
         loss, _, _ = vae_loss(x, output, mean, logvar)
 
-    return loss
+    return loss.item()
 
 
 def main():
@@ -110,12 +115,13 @@ def main():
     )
     test_loss = test_model(model, test_loader, device)
 
-    print("Test loss: " + str(test_loss.item()))
+    print("Test loss: " + str(test_loss))
 
     plot_reconstructions(
-        model, next(iter(test_loader)), device, "final", input_dims, data_cmap
+        model, next(iter(test_loader)), device, num_epochs, input_dims, data_cmap
     )
-    plot_samples_from_prior(model, device, "final", input_dims, data_cmap)
+    plot_samples_from_prior(model, device, num_epochs, input_dims, data_cmap)
+    save_checkpoint(model, num_epochs)
 
 
 if __name__ == "__main__":
