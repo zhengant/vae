@@ -2,6 +2,6 @@ dataset: 'mnist'
 input_dims: [28, 28]
 hidden_size: 300
 latent_size: 100
-epochs: 100
-save_freq: 10
+epochs: 150
+save_freq: 2
 device: 'cuda'
