@@ -1,5 +1,5 @@
 # VAE
-(Work-in-progress) Implementation of the variational autoencoder (VAE) detailed in Auto-Encoding Variational Bayes (Kingma and Welling 2014, https://arxiv.org/pdf/1312.6114.pdf). To run:
+Implementation of the variational autoencoder (VAE) detailed in Auto-Encoding Variational Bayes (Kingma and Welling 2014, https://arxiv.org/pdf/1312.6114.pdf) for MNIST. To run:
 ```
 python vae.py [CONFIG FILE]
 ```
